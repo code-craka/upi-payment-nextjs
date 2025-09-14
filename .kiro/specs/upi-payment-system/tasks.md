@@ -34,7 +34,7 @@
   - Implement order expiration logic based on configurable timer duration
   - _Requirements: 6.1, 6.2, 6.3, 1.1, 1.4, 1.5_
 
-- [ ] 5. Develop payment page with UPI app integration
+- [x] 5. Develop payment page with UPI app integration
 
   - Create dynamic payment page at /pay/[orderId] with order details display
   - Implement UPI deep link generation for GPay, PhonePe, Paytm, and BHIM
@@ -44,7 +44,7 @@
   - Create manual UPI payment option with QR code and copy functionality
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 7.4_
 
-- [ ] 6. Implement UTR submission and verification workflow
+- [x] 6. Implement UTR submission and verification workflow
 
   - Build UTR input form with 12-digit alphanumeric validation
   - Create UTR submission handler that updates order status to pending-verification

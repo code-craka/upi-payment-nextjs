@@ -41,7 +41,7 @@ export const updateSystemSettings = async (
 
   // Update settings
   const updatedSettings = await SystemSettings.updateSettings(
-    validatedUpdates,
+    validatedUpdates as Partial<ISystemSettings>,
     updatedBy
   );
 

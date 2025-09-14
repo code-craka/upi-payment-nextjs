@@ -17,9 +17,9 @@ import {
 } from "@/lib/utils/api-errors";
 
 interface RouteParams {
-  params: {
+  params: Promise<{
     orderId: string;
-  };
+  }>;
 }
 
 /**
@@ -28,7 +28,7 @@ interface RouteParams {
  */
 export const GET = withErrorHandler(
   async (request: NextRequest, { params }: RouteParams) => {
-    const { orderId } = params;
+    const { orderId } = await params;
 
     // Connect to database
     await connectDB();
@@ -106,7 +106,7 @@ export const PATCH = withErrorHandler(
       throw new AuthorizationError("Admin access required");
     }
 
-    const { orderId } = params;
+    const { orderId } = await params;
 
     // Connect to database
     await connectDB();

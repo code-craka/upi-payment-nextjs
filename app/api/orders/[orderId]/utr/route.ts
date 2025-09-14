@@ -13,9 +13,9 @@ import {
 } from "@/lib/utils/api-errors";
 
 interface RouteParams {
-  params: {
+  params: Promise<{
     orderId: string;
-  };
+  }>;
 }
 
 /**
@@ -24,7 +24,7 @@ interface RouteParams {
  */
 export const POST = withErrorHandler(
   async (request: NextRequest, { params }: RouteParams) => {
-    const { orderId } = params;
+    const { orderId } = await params;
 
     // Connect to database
     await connectDB();
@@ -111,7 +111,7 @@ export const POST = withErrorHandler(
  */
 export const GET = withErrorHandler(
   async (request: NextRequest, { params }: RouteParams) => {
-    const { orderId } = params;
+    const { orderId } = await params;
 
     // Connect to database
     await connectDB();
@@ -140,7 +140,7 @@ export const GET = withErrorHandler(
  */
 export const DELETE = withErrorHandler(
   async (request: NextRequest, { params }: RouteParams) => {
-    const { orderId } = params;
+    const { orderId } = await params;
 
     // Connect to database
     await connectDB();

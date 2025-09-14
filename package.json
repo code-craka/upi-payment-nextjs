@@ -1,6 +1,6 @@
 {
   "name": "upi-payment-system",
-  "version": "0.1.0",
+  "version": "0.6.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -11,7 +11,11 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:e2e": "playwright test",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "db:test": "node test-database.js",
+    "db:migrate": "node test-database.js migrate",
+    "db:setup": "node test-database.js full",
+    "db:test-models": "node test-models.js"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.0.0",
@@ -21,6 +25,7 @@
     "@radix-ui/react-slot": "^1.2.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "dotenv": "^17.2.2",
     "lucide-react": "^0.400.0",
     "mongoose": "^8.0.0",
     "next": "^15.0.0",

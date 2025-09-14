@@ -4,27 +4,42 @@ A self-hosted Next.js application that enables merchants to create UPI payment l
 
 ## 🚀 Features
 
+### Core Payment Features
+
 - **Payment Link Generation**: Create UPI payment links via API or dashboard
 - **Multi-UPI App Support**: Integration with GPay, PhonePe, Paytm, and BHIM
 - **Manual Verification**: UTR-based transaction verification workflow
-- **Role-Based Access**: Admin, Merchant, and Viewer roles with appropriate permissions
 - **Order Management**: Complete order lifecycle tracking and status management
-- **System Configuration**: Configurable timer duration, UPI apps, and static UPI ID mode
+- **Configurable Timer**: 9-minute default payment window with configurable duration
 
-## 🛠️ Tech Stack
+### User Management & Security
+
+- **Role-Based Access**: Admin, Merchant, and Viewer roles with appropriate permissions
+- **Clerk Authentication**: Secure authentication and user management
+- **Protected Routes**: Middleware-based route protection
+- **Audit Logging**: Complete audit trail for all operations
+
+### System Configuration
+
+- **Static UPI ID Mode**: Simplified merchant setup option
+- **UPI App Toggles**: Enable/disable specific UPI applications
+- **Timer Configuration**: Configurable payment expiration settings
+- **Real-time Updates**: Live status updates and notifications
+
+## 🛠 Technology Stack
 
 ### Core Framework & Runtime
 
-- **Next.js 15**: App Router architecture with React 18
+- **Next.js 15**: App Router architecture with React 19
 - **TypeScript**: Full type safety throughout the application
 - **Node.js**: Server-side runtime environment
 
 ### Frontend Technologies
 
-- **React 18**: Component library with Server Components
+- **React 19**: Component library with Server Components
 - **TailwindCSS v4**: Utility-first CSS framework
 - **ShadCN UI**: Pre-built component library
-- **SweetAlert2**: User notifications and confirmations
+- **Lucide React**: Icon library
 
 ### Backend & Database
 
@@ -32,91 +47,88 @@ A self-hosted Next.js application that enables merchants to create UPI payment l
 - **Clerk**: Authentication and user management service
 - **Next.js API Routes**: RESTful API endpoints
 
-### Development Tools
+### Package Management
 
-- **ESLint**: Code linting and formatting
-- **Prettier**: Code formatting
-- **Jest**: Unit testing framework
-- **Playwright**: End-to-end testing
+- **pnpm**: Primary package manager (IMPORTANT: Always use pnpm, never npm or yarn)
 
 ## 📋 Prerequisites
 
-- Node.js 22.0.0 or higher
+- Node.js 18+
+- pnpm (install with: `npm install -g pnpm`)
 - MongoDB Atlas account or local MongoDB instance
 - Clerk account for authentication
 
 ## 🚀 Quick Start
 
-### 1. Clone the repository
+### 1. Clone and Install
 
 ```bash
-git clone https://github.com/code-craka/upi-payment-nextjs.git
+git clone <repository-url>
 cd upi-payment-nextjs
+pnpm install
 ```
 
-### 2. Install dependencies
+### 2. Environment Setup
 
-```bash
-npm install
-```
-
-### 3. Environment Setup
-
-Copy the environment template and configure your variables:
-
-```bash
-cp .env.example .env.local
-```
-
-Update `.env.local` with your actual values:
+Create `.env.local` file:
 
 ```env
 # Database
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/upi-payment-system?retryWrites=true&w=majority
+MONGODB_URI=your_mongodb_connection_string
 
 # Clerk Authentication
-CLERK_SECRET_KEY=sk_test_your_clerk_secret_key_here
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_your_clerk_publishable_key_here
+CLERK_SECRET_KEY=your_clerk_secret_key
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
 NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
 NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
-NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/dashboard
-NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/dashboard
-
-# Application
-NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
-### 4. Run the development server
+### 3. Database Setup
 
 ```bash
-npm run dev
+# Run database migrations (if any)
+pnpm run db:migrate
+
+# Seed initial data (optional)
+pnpm run db:seed
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 4. Development
+
+```bash
+# Start development server
+pnpm dev
+
+# Build for production
+pnpm build
+
+# Start production server
+pnpm start
+```
 
 ## 📁 Project Structure
 
 ```
-├── app/                        # Next.js App Router
-│   ├── globals.css            # Global styles and TailwindCSS imports
-│   ├── layout.tsx             # Root layout with Clerk provider
-│   ├── page.tsx               # Landing/dashboard page
-│   ├── middleware.ts          # Clerk authentication middleware
-│   ├── dashboard/             # Merchant dashboard
-│   ├── admin/                 # Admin interface (role-protected)
-│   ├── pay/                   # Dynamic payment pages
-│   └── api/                   # API routes
-├── components/                 # React components
-│   ├── ui/                    # ShadCN UI components
-│   ├── payment/               # Payment-related components
-│   ├── admin/                 # Admin interface components
-│   └── dashboard/             # Dashboard components
-├── lib/                       # Utility libraries
-│   ├── db/                    # Database connection and models
-│   ├── auth/                  # Authentication utilities
-│   ├── utils/                 # Helper functions
-│   └── types/                 # TypeScript type definitions
-└── .kiro/                     # Kiro IDE specifications and steering
+├── app/                          # Next.js App Router
+│   ├── api/                      # API Routes
+│   │   ├── orders/               # Order management endpoints
+│   │   └── admin/                # Admin-only endpoints
+│   ├── pay/[orderId]/            # Dynamic payment pages
+│   ├── dashboard/                # Merchant dashboard
+│   ├── admin/                    # Admin dashboard
+│   └── middleware.ts             # Authentication middleware
+├── components/                   # React components
+│   ├── ui/                       # ShadCN UI components
+│   ├── payment/                  # Payment-related components
+│   ├── admin/                    # Admin interface components
+│   └── auth/                     # Authentication components
+├── lib/                          # Utility libraries
+│   ├── db/                       # Database models and queries
+│   ├── auth/                     # Authentication utilities
+│   ├── utils/                    # Helper functions
+│   └── types/                    # TypeScript type definitions
+└── .kiro/                        # Kiro AI specifications
+    └── specs/upi-payment-system/ # Feature specifications
 ```
 
 ## 🔧 Available Scripts
@@ -124,56 +136,112 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 ### Development
 
 ```bash
-npm run dev             # Start development server
-npm run build           # Build for production
-npm run start           # Start production server
-npm run lint            # Run ESLint
-npm run type-check      # TypeScript compilation check
+pnpm dev             # Start development server
+pnpm build           # Build for production
+pnpm start           # Start production server
+pnpm lint            # Run ESLint
+pnpm type-check      # TypeScript compilation check
 ```
 
 ### Testing
 
 ```bash
-npm run test            # Run unit tests
-npm run test:watch      # Run tests in watch mode
-npm run test:e2e        # Run end-to-end tests
-npm run test:coverage   # Generate test coverage report
+pnpm test            # Run unit tests
+pnpm test:watch      # Run tests in watch mode
+pnpm test:e2e        # Run end-to-end tests
+pnpm test:coverage   # Generate test coverage report
 ```
 
-## 🏗️ Architecture
+### Database
 
-### Authentication Flow
+```bash
+pnpm db:seed         # Seed database with initial data
+pnpm db:migrate      # Run database migrations
+pnpm db:reset        # Reset database (development only)
+```
 
-- Clerk handles user authentication and session management
-- Middleware protects routes based on authentication status
-- Role-based access control for admin features
+## 🔐 Authentication & Roles
 
-### Payment Workflow
+### User Roles
 
-1. Merchant creates payment link via dashboard or API
-2. Customer receives link and selects UPI app
-3. Customer completes payment in UPI app
-4. Customer submits UTR (Unique Transaction Reference)
-5. Admin/Merchant verifies transaction manually
-6. Order status updated to completed/failed
+- **Admin**: Full system access, user management, order verification
+- **Merchant**: Create payment links, view own orders, manage settings
+- **Viewer**: Read-only access to assigned data
 
-### Database Schema
+### Role Assignment
 
-- **Orders**: Payment requests with status tracking
-- **Users**: Clerk-managed user profiles with roles
-- **Settings**: System configuration and preferences
-- **Audit Logs**: Transaction and system activity logs
+Roles are managed through Clerk's public metadata. Admins can assign roles through the admin dashboard.
 
-## 🔐 Environment Variables
+## 💳 Payment Workflow
+
+### 1. Order Creation
+
+- Merchant creates payment link with amount and details
+- System generates unique order ID and UPI deep links
+- Payment page becomes accessible at `/pay/[orderId]`
+
+### 2. Customer Payment
+
+- Customer accesses payment link
+- Chooses UPI app (GPay, PhonePe, Paytm, BHIM) or manual UPI
+- Completes payment in their preferred UPI app
+- Timer counts down from configured duration (default: 9 minutes)
+
+### 3. UTR Submission
+
+- Customer submits 12-digit UTR (Unique Transaction Reference)
+- System validates UTR format and uniqueness
+- Order status updates to "pending-verification"
+- Customer sees confirmation and tracking information
+
+### 4. Verification (Manual)
+
+- Admin reviews submitted UTRs
+- Verifies payment in bank/UPI app
+- Updates order status to "completed" or "failed"
+- Customer and merchant receive status updates
+
+## 🔧 Configuration
+
+### System Settings
+
+Access admin dashboard to configure:
+
+- **Timer Duration**: Payment expiration time (default: 9 minutes)
+- **UPI Apps**: Enable/disable specific UPI applications
+- **Static UPI ID**: Use single UPI ID for all transactions
+- **Notification Settings**: Email/SMS notification preferences
+
+### Environment Variables
 
 | Variable                            | Description                 | Required |
 | ----------------------------------- | --------------------------- | -------- |
-| `MONGODB_URI`                       | MongoDB connection string   | ✅       |
-| `CLERK_SECRET_KEY`                  | Clerk authentication secret | ✅       |
-| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk public key            | ✅       |
-| `NEXT_PUBLIC_CLERK_SIGN_IN_URL`     | Sign-in page URL            | ✅       |
-| `NEXT_PUBLIC_CLERK_SIGN_UP_URL`     | Sign-up page URL            | ✅       |
-| `NEXT_PUBLIC_APP_URL`               | Application base URL        | ✅       |
+| `MONGODB_URI`                       | MongoDB connection string   | Yes      |
+| `CLERK_SECRET_KEY`                  | Clerk authentication secret | Yes      |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk public key            | Yes      |
+| `NEXT_PUBLIC_CLERK_SIGN_IN_URL`     | Sign-in page URL            | Yes      |
+| `NEXT_PUBLIC_CLERK_SIGN_UP_URL`     | Sign-up page URL            | Yes      |
+
+## 📊 API Documentation
+
+### Order Management
+
+- `POST /api/orders` - Create new payment order
+- `GET /api/orders/:id` - Get order details
+- `POST /api/orders/:id/utr` - Submit UTR for verification
+- `PUT /api/orders/:id/status` - Update order status (admin only)
+
+### User Management (Admin)
+
+- `GET /api/admin/users` - List all users
+- `POST /api/admin/users` - Create new user
+- `PUT /api/admin/users/:id` - Update user details
+- `DELETE /api/admin/users/:id` - Delete user
+
+### System Settings
+
+- `GET /api/admin/settings` - Get system configuration
+- `PUT /api/admin/settings` - Update system settings
 
 ## 🚀 Deployment
 
@@ -193,75 +261,90 @@ docker build -t upi-payment-system .
 docker run -p 3000:3000 --env-file .env.local upi-payment-system
 ```
 
+### Manual Deployment
+
+```bash
+# Build the application
+pnpm build
+
+# Start production server
+pnpm start
+```
+
+## 🔍 Monitoring & Logging
+
+### Built-in Monitoring
+
+- Order creation and completion tracking
+- UTR submission audit logs
+- User activity logging
+- System performance metrics
+
+### Error Handling
+
+- Comprehensive error boundaries
+- API error standardization
+- User-friendly error messages
+- Automatic retry mechanisms
+
 ## 🤝 Contributing
 
+### Development Workflow
+
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Create feature branch: `git checkout -b feature/amazing-feature`
+3. Make changes and test thoroughly
+4. Commit changes: `git commit -m 'Add amazing feature'`
+5. Push to branch: `git push origin feature/amazing-feature`
+6. Open Pull Request
 
-## 📝 Development Guidelines
-
-### Code Style
+### Code Standards
 
 - Use TypeScript for all new code
 - Follow ESLint configuration
-- Use Prettier for code formatting
 - Write tests for new features
+- Update documentation as needed
+- Use pnpm for package management
 
-### Component Patterns
-
-- Use Server Components by default
-- Add `"use client"` directive only when needed
-- Co-locate components with their pages when not reusable
-- Use ShadCN UI components for consistent styling
-
-### API Design
-
-- Follow RESTful conventions
-- Use appropriate HTTP methods
-- Implement proper error handling
-- Validate requests with Zod schemas
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-**Build Errors**
-
-- Ensure all environment variables are set
-- Check TypeScript compilation with `npm run type-check`
-- Verify dependencies are installed correctly
-
-**Authentication Issues**
-
-- Verify Clerk keys are correct
-- Check middleware configuration
-- Ensure sign-in/sign-up URLs match Clerk dashboard
-
-**Database Connection**
-
-- Verify MongoDB URI format
-- Check network connectivity
-- Ensure database user has proper permissions
-
-## 📄 License
+## 📝 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+## 🆘 Support
 
-- [Next.js](https://nextjs.org/) for the amazing React framework
-- [Clerk](https://clerk.com/) for authentication services
-- [ShadCN UI](https://ui.shadcn.com/) for beautiful components
-- [TailwindCSS](https://tailwindcss.com/) for utility-first styling
-- [MongoDB](https://mongodb.com/) for database services
+### Common Issues
 
-## 📞 Support
+- **Build Errors**: Ensure you're using pnpm, not npm or yarn
+- **Database Connection**: Verify MongoDB URI and network access
+- **Authentication Issues**: Check Clerk configuration and environment variables
 
-For support, email support@yourcompany.com or join our Slack channel.
+### Getting Help
+
+- Check the [Issues](../../issues) page for known problems
+- Create new issue with detailed description and steps to reproduce
+- Include relevant logs and environment information
+
+## 🎯 Roadmap
+
+### Completed Features ✅
+
+- [x] Core payment link generation
+- [x] UPI app integration (GPay, PhonePe, Paytm, BHIM)
+- [x] UTR submission and verification workflow
+- [x] Role-based authentication system
+- [x] Order status tracking and management
+- [x] System configuration and settings
+
+### Upcoming Features 🚧
+
+- [ ] Admin dashboard and user management
+- [ ] Merchant dashboard and analytics
+- [ ] Automated payment verification
+- [ ] Email/SMS notifications
+- [ ] Advanced reporting and analytics
+- [ ] Webhook integrations
+- [ ] Mobile app for merchants
 
 ---
 
-**Built with ❤️ using Next.js 15 and TypeScript**
+**Built with ❤️ using Next.js, TypeScript, and modern web technologies**
