@@ -19,6 +19,13 @@
 - **Clerk**: Authentication and user management service
 - **Next.js API Routes**: RESTful API endpoints
 
+## Package Management
+
+- **pnpm**: Primary package manager for this project
+- **IMPORTANT**: Always use `pnpm` commands, never `npm` or `yarn`
+- **Installation**: Use `pnpm install` or `pnpm add <package>`
+- **Scripts**: All package.json scripts should be run with `pnpm run <script>` or `pnpm <script>`
+
 ## Development Tools
 
 - **ESLint**: Code linting and formatting
@@ -62,6 +69,16 @@ pnpm db:reset        # Reset database (development only)
 - **API Routes**: RESTful endpoints following REST conventions
 - **Middleware**: Authentication and role-based access control
 - **Error Boundaries**: Graceful error handling in React components
+
+## Package Management Rules
+
+**CRITICAL**: This project uses `pnpm` exclusively. When executing any tasks:
+
+- ✅ **DO**: Use `pnpm install`, `pnpm add`, `pnpm dev`, `pnpm build`, etc.
+- ❌ **DON'T**: Use `npm install`, `npm run`, `yarn add`, or any other package manager
+- **Installation**: `pnpm add <package>` for dependencies, `pnpm add -D <package>` for dev dependencies
+- **Scripts**: All package.json scripts must be executed with `pnpm <script-name>`
+- **Lock File**: Only `pnpm-lock.yaml` should be committed, never `package-lock.json` or `yarn.lock`
 
 ## Environment Configuration
 
