@@ -16,7 +16,7 @@
   - Set up user role management in Clerk public metadata
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
 
-- [ ] 3. Create core data models and database schemas
+- [x] 3. Create core data models and database schemas
 
   - Define MongoDB schemas for Orders, SystemSettings, and AuditLogs collections
   - Implement Order model with status tracking and expiration logic
@@ -25,7 +25,7 @@
   - Add database indexes for performance optimization (orderId, createdBy, expiresAt)
   - _Requirements: 8.1, 8.2, 8.5_
 
-- [ ] 4. Build order creation and management API endpoints
+- [x] 4. Build order creation and management API endpoints
 
   - Implement POST /api/orders endpoint for creating payment links
   - Create GET /api/orders/:orderId endpoint for fetching order details
