@@ -1,0 +1,65 @@
+{
+  // Editor & Formatting
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.tabSize": 2,
+  "editor.detectIndentation": false,
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+
+  // TypeScript & JS
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "javascript.validate.enable": true,
+  "typescript.validate.enable": true,
+
+  // Linting & Code Quality
+  "eslint.validate": ["javascript", "typescript", "typescriptreact", "html"],
+  "eslint.run": "onSave",
+  "eslint.alwaysShowStatus": true,
+  "eslint.options": {
+    "extensions": [".js", ".jsx", ".ts", ".tsx"]
+  },
+
+  // TailwindCSS
+  "tailwindCSS.includeLanguages": {
+    "typescript": "javascript",
+    "typescriptreact": "html"
+  },
+  "tailwindCSS.emmetCompletions": true,
+  "tailwindCSS.experimental.classRegex": ["cn\\(([^)]*)\\)"],
+  "css.validate": false,
+  "less.validate": false,
+  "scss.validate": false,
+
+  // PNPM & Node
+  "npm.packageManager": "pnpm",
+  "terminal.integrated.env.osx": {
+    "NODE_OPTIONS": "--openssl-legacy-provider"
+  },
+
+  // Files & Explorer
+  "files.exclude": {
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "**/node_modules": true,
+    "**/.next": true
+  },
+
+  // Git
+  "git.autofetch": true,
+  "git.enableSmartCommit": true,
+
+  // Next.js Specific
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit"
+  },
+
+  // Misc
+  "json.schemas": [
+    {
+      "fileMatch": ["/tsconfig.json"],
+      "url": "https://json.schemastore.org/tsconfig"
+    }
+  ]
+}

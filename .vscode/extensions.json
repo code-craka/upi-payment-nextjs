@@ -1,0 +1,38 @@
+{
+  "recommendations": [
+    // =========================
+    // Code Formatting & Linting
+    // =========================
+    "esbenp.prettier-vscode",         // Prettier for code formatting
+    "dbaeumer.vscode-eslint",         // ESLint for linting
+
+    // =========================
+    // TailwindCSS Support
+    // =========================
+    "bradlc.vscode-tailwindcss",      // Tailwind IntelliSense
+
+    // =========================
+    // TypeScript & JS Enhancements
+    // =========================
+    "ms-vscode.vscode-typescript-next", // Latest TS support
+    "eg2.vscode-npm-script",           // Run npm/pnpm scripts easily
+
+    // =========================
+    // React/Next.js
+    // =========================
+    "dsznajder.es7-react-js-snippets", // React/JSX snippets
+    "xabikos.ReactSnippets",           // Additional React snippets
+    "mgmcdermott.vscode-language-babel", // Babel syntax highlighting
+
+    // =========================
+    // Git & Version Control
+    // =========================
+    "eamodio.gitlens",                  // GitLens for enhanced Git info
+
+    // =========================
+    // Misc & Productivity
+    // =========================
+    "wix.vscode-import-cost",           // Show import sizes
+    "ms-vscode.vscode-typescript-tslint-plugin" // Extra TS linting
+  ]
+}
