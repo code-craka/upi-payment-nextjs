@@ -1,0 +1,110 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Test Admin Endpoints</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .endpoint {
+        margin: 20px 0;
+        padding: 15px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+      .success {
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+      }
+      .error {
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+      }
+      .loading {
+        background-color: #fff3cd;
+        border-color: #ffeaa7;
+      }
+      pre {
+        background-color: #f8f9fa;
+        padding: 10px;
+        border-radius: 3px;
+        overflow-x: auto;
+      }
+      button {
+        padding: 8px 16px;
+        margin: 5px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Admin API Endpoint Tester</h1>
+    <p>
+      Make sure you're signed in as an admin user before testing these
+      endpoints.
+    </p>
+
+    <div class="endpoint">
+      <h3>User Info Debug</h3>
+      <button onclick="testEndpoint('/api/debug/user-info', 'userInfo')">
+        Test User Info
+      </button>
+      <div id="userInfo"></div>
+    </div>
+
+    <div class="endpoint">
+      <h3>Admin Settings</h3>
+      <button onclick="testEndpoint('/api/admin/settings', 'settings')">
+        Test Settings API
+      </button>
+      <div id="settings"></div>
+    </div>
+
+    <div class="endpoint">
+      <h3>Admin Statistics</h3>
+      <button onclick="testEndpoint('/api/admin/stats', 'stats')">
+        Test Stats API
+      </button>
+      <div id="stats"></div>
+    </div>
+
+    <script>
+      async function testEndpoint(url, containerId) {
+        const container = document.getElementById(containerId);
+        container.className = "loading";
+        container.innerHTML = "<p>Loading...</p>";
+
+        try {
+          const response = await fetch(url);
+          const data = await response.json();
+
+          if (response.ok) {
+            container.className = "success";
+            container.innerHTML = `
+                        <p><strong>✅ Success (${response.status})</strong></p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+          } else {
+            container.className = "error";
+            container.innerHTML = `
+                        <p><strong>❌ Error (${response.status})</strong></p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+          }
+        } catch (error) {
+          container.className = "error";
+          container.innerHTML = `
+                    <p><strong>❌ Network Error</strong></p>
+                    <pre>${error.message}</pre>
+                `;
+        }
+      }
+
+      // Auto-test user info on page load
+      window.onload = () => {
+        testEndpoint("/api/debug/user-info", "userInfo");
+      };
+    </script>
+  </body>
+</html>

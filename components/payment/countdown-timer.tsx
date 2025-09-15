@@ -85,7 +85,7 @@ export default function CountdownTimer({
       </div>
 
       <div
-        className={`text-3xl font-bold mb-2 ${
+        className={`text-2xl sm:text-3xl font-bold mb-2 ${
           isVeryUrgent
             ? "text-red-600 animate-pulse"
             : isUrgent
@@ -96,9 +96,9 @@ export default function CountdownTimer({
         {display}
       </div>
 
-      <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+      <div className="w-full bg-gray-200 rounded-full h-2 sm:h-3 mb-2">
         <div
-          className={`h-2 rounded-full transition-all duration-1000 ${
+          className={`h-2 sm:h-3 rounded-full transition-all duration-1000 ${
             isVeryUrgent
               ? "bg-red-500"
               : isUrgent

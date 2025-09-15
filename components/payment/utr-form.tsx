@@ -3,10 +3,15 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import {
+  ValidatedInput,
+  ValidationRules,
+  useFormValidation,
+} from "@/components/forms/validated-input";
+import { apiClient } from "@/lib/utils/network-handler";
+import { ErrorDisplay, useToast } from "@/components/error/error-messages";
 
 interface UtrFormProps {
   orderId: string;
@@ -15,15 +20,11 @@ interface UtrFormProps {
 export default function UtrForm({ orderId }: UtrFormProps) {
   const [utr, setUtr] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<any>(null);
   const [success, setSuccess] = useState(false);
   const router = useRouter();
-
-  const validateUtr = (value: string): boolean => {
-    // UTR should be 12-digit alphanumeric
-    const utrRegex = /^[A-Za-z0-9]{12}$/;
-    return utrRegex.test(value);
-  };
+  const { showToast } = useToast();
+  const { updateFieldValidation, isFormValid } = useFormValidation();
 
   const handleUtrChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
@@ -36,8 +37,12 @@ export default function UtrForm({ orderId }: UtrFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateUtr(utr)) {
-      setError("UTR must be exactly 12 alphanumeric characters");
+    if (!isFormValid) {
+      showToast({
+        type: "error",
+        title: "Invalid UTR",
+        message: "Please enter a valid 12-digit UTR number",
+      });
       return;
     }
 
@@ -45,21 +50,23 @@ export default function UtrForm({ orderId }: UtrFormProps) {
     setError(null);
 
     try {
-      const response = await fetch(`/api/orders/${orderId}/utr`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ utr }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to submit UTR");
-      }
+      const data = await apiClient.post(
+        `/orders/${orderId}/utr`,
+        { utr },
+        {
+          retryOptions: {
+            maxRetries: 2,
+            baseDelay: 1000,
+          },
+        }
+      );
 
       setSuccess(true);
+      showToast({
+        type: "success",
+        title: "UTR Submitted Successfully",
+        message: "Your payment is now under verification",
+      });
 
       // Refresh the page after a short delay to show the updated status
       setTimeout(() => {
@@ -67,7 +74,12 @@ export default function UtrForm({ orderId }: UtrFormProps) {
       }, 2000);
     } catch (error) {
       console.error("UTR submission error:", error);
-      setError(error instanceof Error ? error.message : "Failed to submit UTR");
+      setError(error);
+      showToast({
+        type: "error",
+        title: "Submission Failed",
+        message: error.message || "Failed to submit UTR. Please try again.",
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -102,40 +114,44 @@ export default function UtrForm({ orderId }: UtrFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="utr" className="text-sm font-medium">
-          UTR Number (Transaction Reference)
-        </Label>
-        <Input
-          id="utr"
-          type="text"
-          value={utr}
-          onChange={handleUtrChange}
-          placeholder="Enter 12-digit UTR number"
-          className={`text-center text-lg font-mono tracking-wider ${
-            utr && !validateUtr(utr)
-              ? "border-red-300 focus:border-red-500"
-              : ""
-          }`}
-          disabled={isSubmitting}
-          maxLength={12}
-        />
-        <div className="text-xs text-gray-500 text-center">
-          {utr.length}/12 characters
-        </div>
+      <ValidatedInput
+        id="utr"
+        label="UTR Number (Transaction Reference)"
+        type="text"
+        value={utr}
+        onChange={handleUtrChange}
+        placeholder="Enter 12-digit UTR number"
+        className="text-center text-base sm:text-lg font-mono tracking-wider min-h-[44px]"
+        disabled={isSubmitting}
+        maxLength={12}
+        validationRules={[
+          ValidationRules.required("UTR number is required"),
+          ValidationRules.utr(),
+        ]}
+        validateOnChange={true}
+        onValidationChange={(isValid, errors) =>
+          updateFieldValidation("utr", isValid, errors)
+        }
+      />
+
+      <div className="text-xs text-gray-500 text-center">
+        {utr.length}/12 characters
       </div>
 
       {error && (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
+        <ErrorDisplay
+          error={error}
+          onRetry={() =>
+            handleSubmit({ preventDefault: () => {} } as React.FormEvent)
+          }
+          compact={true}
+        />
       )}
 
       <Button
         type="submit"
-        disabled={!validateUtr(utr) || isSubmitting}
-        className="w-full h-12 text-base font-medium"
+        disabled={!isFormValid || isSubmitting}
+        className="w-full h-12 sm:h-14 text-base font-medium touch-manipulation"
       >
         {isSubmitting ? (
           <div className="flex items-center gap-2">

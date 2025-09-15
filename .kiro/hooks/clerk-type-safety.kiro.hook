@@ -1,0 +1,21 @@
+{
+  "enabled": true,
+  "name": "Clerk Type Safety Layer",
+  "description": "Creates a unified type safety and consistency layer for Clerk authentication, implementing type adapters, error handling wrappers, role validation with Zod schemas, and consistent data retrieval patterns across the entire UPI payment system codebase",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "lib/auth/*.ts",
+      "components/auth/*.tsx",
+      "app/api/**/*.ts",
+      "app/**/page.tsx",
+      "middleware.ts",
+      "components/**/*.tsx"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Analyze the modified authentication-related files and implement the comprehensive Clerk type safety layer. Create unified User type adapters, consistent error handling wrappers, proper type guards with Zod validation, and establish single patterns for user data retrieval. Update all affected files to use the new type-safe authentication system, ensuring consistency across API routes, components, and server-side operations. Focus on replacing direct Clerk user access with adapted functions, wrapping Clerk operations with error handling, and implementing proper role-based permission checks throughout the codebase."
+  }
+}

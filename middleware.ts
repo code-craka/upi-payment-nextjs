@@ -1,58 +1,31 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
 
-// Define route matchers
+// Define public routes that don't require authentication
 const isPublicRoute = createRouteMatcher([
   "/",
   "/pay/(.*)",
   "/sign-in(.*)",
   "/sign-up(.*)",
   "/api/webhooks/(.*)",
+  "/api/debug/(.*)",
 ]);
 
-const isAdminRoute = createRouteMatcher(["/admin(.*)", "/api/admin/(.*)"]);
-
-const isDashboardRoute = createRouteMatcher(["/dashboard(.*)"]);
-
+// Define protected API routes
 const isProtectedApiRoute = createRouteMatcher([
   "/api/orders(.*)",
   "/api/admin/(.*)",
 ]);
 
-export default clerkMiddleware(async (auth, req: NextRequest) => {
+export default clerkMiddleware(async (auth, req) => {
   const { userId, sessionClaims } = await auth();
 
-  // Allow public routes
+  // Always allow public routes
   if (isPublicRoute(req)) {
     return NextResponse.next();
   }
 
-  // Require authentication for protected routes
-  if (!userId) {
-    const signInUrl = new URL("/sign-in", req.url);
-    signInUrl.searchParams.set("redirect_url", req.url);
-    return NextResponse.redirect(signInUrl);
-  }
-
-  // Get user role from session claims
-  const userRole = (sessionClaims?.metadata as any)?.role as string;
-
-  // Admin route protection
-  if (isAdminRoute(req)) {
-    if (userRole !== "admin") {
-      return NextResponse.redirect(new URL("/", req.url));
-    }
-  }
-
-  // Dashboard route protection (merchants and admins)
-  if (isDashboardRoute(req)) {
-    if (!userRole || !["admin", "merchant"].includes(userRole)) {
-      return NextResponse.redirect(new URL("/", req.url));
-    }
-  }
-
-  // API route protection
+  // Handle API routes
   if (isProtectedApiRoute(req)) {
     if (!userId) {
       return NextResponse.json(
@@ -61,8 +34,9 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
       );
     }
 
-    // Admin API routes
+    // Check admin permissions for admin API routes
     if (req.nextUrl.pathname.startsWith("/api/admin")) {
+      const userRole = (sessionClaims?.metadata as any)?.role as string;
       if (userRole !== "admin") {
         return NextResponse.json(
           { error: "Admin access required" },
@@ -70,8 +44,12 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
         );
       }
     }
+
+    return NextResponse.next();
   }
 
+  // For all other routes, let the page handle authentication
+  // This prevents redirect loops
   return NextResponse.next();
 });
 

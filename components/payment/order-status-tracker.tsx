@@ -3,10 +3,11 @@
 import { CheckCircle, Clock, AlertCircle, XCircle } from "lucide-react";
 
 interface OrderStatusTrackerProps {
-  currentStatus: string;
+  status: string;
   utr?: string;
-  createdAt: string;
+  createdAt?: string;
   utrSubmittedAt?: string;
+  size?: "sm" | "md" | "lg";
 }
 
 interface StatusStep {
@@ -37,15 +38,47 @@ const statusSteps: StatusStep[] = [
   },
 ];
 
-export default function OrderStatusTracker({
-  currentStatus,
+function OrderStatusTrackerComponent({
+  status: currentStatus,
   utr,
   createdAt,
   utrSubmittedAt,
+  size = "md",
 }: OrderStatusTrackerProps) {
   // Don't show tracker for expired or failed orders
   if (currentStatus === "expired" || currentStatus === "failed") {
     return null;
+  }
+
+  // For small size, show simplified version
+  if (size === "sm") {
+    const getStatusColor = () => {
+      switch (currentStatus) {
+        case "pending":
+          return "bg-yellow-100 text-yellow-800";
+        case "pending-verification":
+          return "bg-blue-100 text-blue-800";
+        case "completed":
+          return "bg-green-100 text-green-800";
+        default:
+          return "bg-gray-100 text-gray-800";
+      }
+    };
+
+    return (
+      <div className="flex items-center gap-2">
+        <div
+          className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor()}`}
+        >
+          {currentStatus === "pending" && "Payment Pending"}
+          {currentStatus === "pending-verification" && "Under Verification"}
+          {currentStatus === "completed" && "Completed"}
+        </div>
+        {utr && (
+          <span className="text-xs text-gray-500 font-mono">UTR: {utr}</span>
+        )}
+      </div>
+    );
   }
 
   const getCurrentStepIndex = () => {
@@ -229,3 +262,6 @@ export default function OrderStatusTracker({
     </div>
   );
 }
+
+export { OrderStatusTrackerComponent as OrderStatusTracker };
+export default OrderStatusTrackerComponent;

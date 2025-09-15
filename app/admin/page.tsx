@@ -1,37 +1,96 @@
-import { auth, currentUser } from "@clerk/nextjs/server";
+"use client";
+
+import { useState } from "react";
+import { useAuth } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
-import { getUserRole } from "@/lib/auth/permissions";
+import { useUserRole } from "@/lib/auth/client";
 import { UserProfile } from "@/components/auth/user-profile";
-import { AdminOnly } from "@/components/auth/role-guard";
 import { Button } from "@/components/ui/button";
+import { UserManagement } from "@/components/admin/user-management";
+import { OrdersOverview } from "@/components/admin/orders-overview";
+import { AnalyticsDashboard } from "@/components/admin/analytics-dashboard";
+import { SettingsManagement } from "@/components/admin/settings-management";
+import { AuditLogsViewer } from "@/components/admin/audit-logs-viewer";
+import { DashboardErrorBoundary } from "@/components/error/error-boundary";
 
-export default async function AdminPage() {
-  const { userId } = await auth();
+type AdminView =
+  | "dashboard"
+  | "users"
+  | "orders"
+  | "analytics"
+  | "audit-logs"
+  | "settings";
 
+export default function AdminPage() {
+  const { userId, isLoaded } = useAuth();
+  const role = useUserRole();
+  const [activeView, setActiveView] = useState<AdminView>("dashboard");
+
+  // Show loading while auth is loading
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  // Redirect if not authenticated
   if (!userId) {
     redirect("/sign-in");
   }
 
-  const user = await currentUser();
-
-  if (!user) {
-    redirect("/sign-in");
-  }
-
-  const role = getUserRole(user);
-
-  // Ensure user has admin access
+  // Handle non-admin users
   if (role !== "admin") {
-    redirect("/dashboard");
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="max-w-md w-full bg-white shadow rounded-lg p-6">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">
+              Admin Access Required
+            </h1>
+            <p className="text-gray-600 mb-6">
+              You need administrator privileges to access this page.
+            </p>
+            <p className="text-sm text-gray-500 mb-6">
+              Current role: {role || "No role assigned"}
+            </p>
+            <Button onClick={() => (window.location.href = "/dashboard")}>
+              Go to Dashboard
+            </Button>
+            <div className="mt-6">
+              <UserProfile />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
+
+  const renderActiveView = () => {
+    switch (activeView) {
+      case "users":
+        return <UserManagement />;
+      case "orders":
+        return <OrdersOverview />;
+      case "analytics":
+        return <AnalyticsDashboard />;
+      case "audit-logs":
+        return <AuditLogsViewer />;
+      case "settings":
+        return <SettingsManagement />;
+      default:
+        return <AnalyticsDashboard />;
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-4 sm:py-6 gap-4 sm:gap-0">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
                 Admin Dashboard
               </h1>
               <p className="text-sm text-gray-600 mt-1">
@@ -43,163 +102,77 @@ export default async function AdminPage() {
         </div>
       </header>
 
+      {/* Navigation Tabs */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <nav className="-mb-px flex overflow-x-auto space-x-4 sm:space-x-8 scrollbar-hide">
+            <button
+              onClick={() => setActiveView("dashboard")}
+              className={`py-4 px-2 sm:px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+                activeView === "dashboard"
+                  ? "border-blue-500 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+            >
+              Dashboard
+            </button>
+            <button
+              onClick={() => setActiveView("analytics")}
+              className={`py-4 px-2 sm:px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+                activeView === "analytics"
+                  ? "border-blue-500 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+            >
+              Analytics
+            </button>
+            <button
+              onClick={() => setActiveView("users")}
+              className={`py-4 px-2 sm:px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+                activeView === "users"
+                  ? "border-blue-500 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+            >
+              Users
+            </button>
+            <button
+              onClick={() => setActiveView("orders")}
+              className={`py-4 px-2 sm:px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+                activeView === "orders"
+                  ? "border-blue-500 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+            >
+              Orders
+            </button>
+            <button
+              onClick={() => setActiveView("audit-logs")}
+              className={`py-4 px-2 sm:px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+                activeView === "audit-logs"
+                  ? "border-blue-500 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+            >
+              Audit Logs
+            </button>
+            <button
+              onClick={() => setActiveView("settings")}
+              className={`py-4 px-2 sm:px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+                activeView === "settings"
+                  ? "border-blue-500 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+            >
+              Settings
+            </button>
+          </nav>
+        </div>
+      </div>
+
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
-          {/* Admin Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
-                      <span className="text-white text-sm font-medium">👥</span>
-                    </div>
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">
-                        Total Users
-                      </dt>
-                      <dd className="text-lg font-medium text-gray-900">0</dd>
-                    </dl>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center">
-                      <span className="text-white text-sm font-medium">₹</span>
-                    </div>
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">
-                        Total Orders
-                      </dt>
-                      <dd className="text-lg font-medium text-gray-900">0</dd>
-                    </dl>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="w-8 h-8 bg-yellow-500 rounded-md flex items-center justify-center">
-                      <span className="text-white text-sm font-medium">⏳</span>
-                    </div>
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">
-                        Pending Verification
-                      </dt>
-                      <dd className="text-lg font-medium text-gray-900">0</dd>
-                    </dl>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="w-8 h-8 bg-red-500 rounded-md flex items-center justify-center">
-                      <span className="text-white text-sm font-medium">⚙️</span>
-                    </div>
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">
-                        System Health
-                      </dt>
-                      <dd className="text-lg font-medium text-gray-900">
-                        Good
-                      </dd>
-                    </dl>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Admin Actions */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-white shadow rounded-lg">
-              <div className="px-4 py-5 sm:p-6">
-                <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-                  User Management
-                </h3>
-                <p className="text-sm text-gray-600 mb-4">
-                  Create, manage, and assign roles to system users.
-                </p>
-                <div className="space-y-3">
-                  <Button className="w-full">Manage Users</Button>
-                  <Button variant="outline" className="w-full">
-                    Create New User
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white shadow rounded-lg">
-              <div className="px-4 py-5 sm:p-6">
-                <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-                  Order Management
-                </h3>
-                <p className="text-sm text-gray-600 mb-4">
-                  Review and verify pending transactions and orders.
-                </p>
-                <div className="space-y-3">
-                  <Button className="w-full">View All Orders</Button>
-                  <Button variant="outline" className="w-full">
-                    Pending Verifications
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white shadow rounded-lg">
-              <div className="px-4 py-5 sm:p-6">
-                <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-                  System Settings
-                </h3>
-                <p className="text-sm text-gray-600 mb-4">
-                  Configure payment timer, UPI apps, and system preferences.
-                </p>
-                <div className="space-y-3">
-                  <Button className="w-full">System Configuration</Button>
-                  <Button variant="outline" className="w-full">
-                    View Audit Logs
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white shadow rounded-lg">
-              <div className="px-4 py-5 sm:p-6">
-                <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-                  Analytics & Reports
-                </h3>
-                <p className="text-sm text-gray-600 mb-4">
-                  View system analytics and generate reports.
-                </p>
-                <div className="space-y-3">
-                  <Button className="w-full">View Analytics</Button>
-                  <Button variant="outline" className="w-full">
-                    Export Reports
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
+          <DashboardErrorBoundary>{renderActiveView()}</DashboardErrorBoundary>
         </div>
       </main>
     </div>

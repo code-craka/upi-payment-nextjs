@@ -6,7 +6,7 @@ import {
   hasPermission,
   type Permission,
   type UserRole,
-} from "./permissions";
+} from "./permissions-client";
 
 /**
  * Hook to get current user's role (client-side)

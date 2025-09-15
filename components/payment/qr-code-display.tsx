@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Copy, Download, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 interface QRCodeDisplayProps {
   upiLink: string;
@@ -61,23 +62,25 @@ export default function QRCodeDisplay({
     <div className="space-y-4">
       {/* QR Code */}
       <div className="flex justify-center">
-        <div className="bg-white p-4 rounded-lg border-2 border-gray-200 shadow-sm">
+        <div className="bg-white p-3 sm:p-4 rounded-lg border-2 border-gray-200 shadow-sm">
           {isLoading ? (
-            <div className="w-48 h-48 bg-gray-100 rounded-lg flex items-center justify-center">
+            <div className="w-40 h-40 sm:w-48 sm:h-48 bg-gray-100 rounded-lg flex items-center justify-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
             </div>
           ) : qrCodeUrl ? (
-            <img
+            <Image
               src={qrCodeUrl}
               alt="UPI Payment QR Code"
-              className="w-48 h-48 rounded-lg"
+              className="w-40 h-40 sm:w-48 sm:h-48 rounded-lg"
+              width={192}
+              height={192}
               onError={() => {
                 console.error("Failed to load QR code image");
                 setQrCodeUrl("");
               }}
             />
           ) : (
-            <div className="w-48 h-48 bg-gray-100 rounded-lg flex items-center justify-center">
+            <div className="w-40 h-40 sm:w-48 sm:h-48 bg-gray-100 rounded-lg flex items-center justify-center">
               <div className="text-center text-gray-500">
                 <Smartphone className="h-8 w-8 mx-auto mb-2" />
                 <div className="text-sm">QR Code unavailable</div>
@@ -94,7 +97,7 @@ export default function QRCodeDisplay({
             variant="outline"
             size="sm"
             onClick={downloadQRCode}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 min-h-[44px] touch-manipulation"
           >
             <Download className="h-4 w-4" />
             Download QR
@@ -123,7 +126,7 @@ export default function QRCodeDisplay({
               variant="outline"
               size="sm"
               onClick={copyUpiLink}
-              className="px-3 shrink-0"
+              className="px-3 shrink-0 min-h-[44px] touch-manipulation"
             >
               <Copy className="h-4 w-4" />
             </Button>
@@ -148,10 +151,10 @@ export default function QRCodeDisplay({
           </ol>
 
           <div className="mt-3 p-3 bg-white rounded border">
-            <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
               <div>
                 <div className="font-medium text-gray-700">UPI ID:</div>
-                <div className="font-mono text-blue-600 break-all">
+                <div className="font-mono text-blue-600 break-all text-xs sm:text-sm">
                   {upiLink.match(/pa=([^&]+)/)?.[1] || "N/A"}
                 </div>
               </div>

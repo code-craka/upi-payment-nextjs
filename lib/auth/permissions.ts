@@ -1,30 +1,13 @@
 import type { User } from "@clerk/nextjs/server";
-import type { UserResource } from "@clerk/types";
 
-// Define user roles
-export type UserRole = "admin" | "merchant" | "viewer";
+// Re-export types from client permissions
+export type { UserRole, Permission } from "./permissions-client";
+export { rolePermissions } from "./permissions-client";
+import type { UserRole, Permission } from "./permissions-client";
+import { rolePermissions } from "./permissions-client";
 
-// Define permissions for each role
-export const rolePermissions = {
-  admin: [
-    "create_user",
-    "delete_user",
-    "view_all_orders",
-    "update_settings",
-    "manage_users",
-    "verify_orders",
-    "view_analytics",
-    "create_order",
-    "view_own_orders",
-  ],
-  merchant: ["create_order", "view_own_orders", "manage_own_links"],
-  viewer: ["view_assigned_orders"],
-} as const;
-
-export type Permission = (typeof rolePermissions)[UserRole][number];
-
-// Union type for both server and client user types
-type ClerkUser = User | UserResource | null | undefined;
+// Server-side user type
+type ClerkUser = User | null | undefined;
 
 /**
  * Get user role from Clerk user metadata
@@ -47,6 +30,33 @@ export function hasPermission(
   if (!role) return false;
 
   return (rolePermissions[role] as readonly string[]).includes(permission);
+}
+
+/**
+ * Check if user has specific permission by userId (async version for server-side)
+ */
+export async function hasPermissionByUserId(
+  userId: string,
+  permission: Permission
+): Promise<boolean> {
+  try {
+    const { clerkClient } = await import("@clerk/nextjs/server");
+    const client = await clerkClient();
+    const user = await client.users.getUser(userId);
+
+    // Debug logging
+    console.log("Permission check for user:", userId);
+    console.log("User role from publicMetadata:", user.publicMetadata?.role);
+    console.log("Checking permission:", permission);
+
+    const result = hasPermission(user, permission);
+    console.log("Permission result:", result);
+
+    return result;
+  } catch (error) {
+    console.error("Error fetching user for permission check:", error);
+    return false;
+  }
 }
 
 /**

@@ -11,6 +11,10 @@ export default function SignUpPage() {
           <p className="text-gray-600 mt-2">Create your account</p>
         </div>
         <SignUp
+          fallbackRedirectUrl="/dashboard"
+          forceRedirectUrl="/dashboard"
+          signInFallbackRedirectUrl="/dashboard"
+          signInForceRedirectUrl="/dashboard"
           appearance={{
             elements: {
               formButtonPrimary:

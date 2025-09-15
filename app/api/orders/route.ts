@@ -16,12 +16,14 @@ import {
   validateQueryParams,
   withErrorHandler,
 } from "@/lib/utils/api-errors";
+import { withStandardMiddleware } from "@/lib/middleware/error-handler";
+import { logOrderCreation } from "@/lib/db/queries/audit-logs";
 
 /**
  * POST /api/orders
  * Create a new payment order and generate payment links
  */
-export const POST = withErrorHandler(async (request: NextRequest) => {
+export const POST = withStandardMiddleware(async (request: NextRequest) => {
   // Authenticate user
   const { userId } = await auth();
   if (!userId) {
@@ -95,6 +97,21 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
     },
   });
 
+  // Log order creation for audit trail
+  await logOrderCreation(
+    orderId,
+    userId,
+    {
+      amount: validatedData.amount,
+      merchantName: validatedData.merchantName,
+      vpa,
+    },
+    {
+      ipAddress: clientIP,
+      userAgent,
+    }
+  );
+
   // Return success response with order details
   return successResponse(
     {
@@ -115,7 +132,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
  * GET /api/orders
  * Get orders for the authenticated user (merchants see their own, admins see all)
  */
-export const GET = withErrorHandler(async (request: NextRequest) => {
+export const GET = withStandardMiddleware(async (request: NextRequest) => {
   // Authenticate user
   const { userId, sessionClaims } = await auth();
   if (!userId) {

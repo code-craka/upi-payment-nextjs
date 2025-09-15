@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mobile Optimization Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      /* Test mobile-specific styles */
+      .touch-manipulation {
+        touch-action: manipulation;
+      }
+      .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50">
+    <div class="min-h-screen py-4 sm:py-8 px-3 sm:px-4">
+      <div class="max-w-md mx-auto">
+        <!-- Mobile-optimized payment card -->
+        <div class="bg-white rounded-lg shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
+          <h1 class="text-2xl sm:text-3xl font-bold text-center mb-4">
+            Mobile Payment Test
+          </h1>
+
+          <!-- Amount display -->
+          <div class="text-center mb-6">
+            <div class="text-2xl sm:text-3xl font-bold text-green-600 mb-1">
+              ₹1,234
+            </div>
+            <div class="text-sm sm:text-base text-gray-600">
+              to Test Merchant
+            </div>
+          </div>
+
+          <!-- Copy buttons test -->
+          <div class="space-y-4 mb-6">
+            <div class="flex gap-2">
+              <input
+                type="text"
+                value="test@upi"
+                readonly
+                class="flex-1 px-3 py-2 border border-gray-300 rounded-md"
+              />
+              <button
+                class="px-3 min-h-[44px] touch-manipulation bg-blue-500 text-white rounded-md"
+              >
+                Copy
+              </button>
+            </div>
+          </div>
+
+          <!-- UPI buttons test -->
+          <div class="space-y-3">
+            <button
+              class="w-full h-16 sm:h-14 text-base sm:text-lg font-medium bg-blue-600 text-white rounded-md touch-manipulation hover:bg-blue-700 transition-all duration-200 transform hover:scale-105 active:scale-95"
+            >
+              <div class="flex items-center justify-center gap-2 sm:gap-3">
+                <span class="text-xl sm:text-2xl">🟢</span>
+                <span>Pay with Google Pay</span>
+                <span class="text-sm">→</span>
+              </div>
+            </button>
+
+            <button
+              class="w-full h-16 sm:h-14 text-base sm:text-lg font-medium bg-purple-600 text-white rounded-md touch-manipulation hover:bg-purple-700 transition-all duration-200 transform hover:scale-105 active:scale-95"
+            >
+              <div class="flex items-center justify-center gap-2 sm:gap-3">
+                <span class="text-xl sm:text-2xl">📱</span>
+                <span>Pay with PhonePe</span>
+                <span class="text-sm">→</span>
+              </div>
+            </button>
+          </div>
+
+          <!-- Timer test -->
+          <div class="mt-6 text-center">
+            <div class="text-2xl sm:text-3xl font-bold text-blue-600 mb-2">
+              09:00
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2 sm:h-3 mb-2">
+              <div
+                class="h-2 sm:h-3 rounded-full bg-blue-500 transition-all duration-1000"
+                style="width: 100%"
+              ></div>
+            </div>
+            <p class="text-sm text-gray-600">
+              Complete your payment before the timer expires
+            </p>
+          </div>
+        </div>
+
+        <!-- Admin navigation test -->
+        <div class="bg-white rounded-lg shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
+          <h2 class="text-xl sm:text-2xl font-bold mb-4">
+            Admin Navigation Test
+          </h2>
+          <nav
+            class="flex overflow-x-auto space-x-4 sm:space-x-8 scrollbar-hide"
+          >
+            <button
+              class="py-4 px-2 sm:px-1 border-b-2 border-blue-500 text-blue-600 font-medium text-sm whitespace-nowrap"
+            >
+              Dashboard
+            </button>
+            <button
+              class="py-4 px-2 sm:px-1 border-b-2 border-transparent text-gray-500 font-medium text-sm whitespace-nowrap"
+            >
+              Analytics
+            </button>
+            <button
+              class="py-4 px-2 sm:px-1 border-b-2 border-transparent text-gray-500 font-medium text-sm whitespace-nowrap"
+            >
+              Users
+            </button>
+            <button
+              class="py-4 px-2 sm:px-1 border-b-2 border-transparent text-gray-500 font-medium text-sm whitespace-nowrap"
+            >
+              Orders
+            </button>
+            <button
+              class="py-4 px-2 sm:px-1 border-b-2 border-transparent text-gray-500 font-medium text-sm whitespace-nowrap"
+            >
+              Audit Logs
+            </button>
+            <button
+              class="py-4 px-2 sm:px-1 border-b-2 border-transparent text-gray-500 font-medium text-sm whitespace-nowrap"
+            >
+              Settings
+            </button>
+          </nav>
+        </div>
+
+        <!-- Form test -->
+        <div class="bg-white rounded-lg shadow-lg p-4 sm:p-6">
+          <h2 class="text-lg font-semibold mb-4">UTR Form Test</h2>
+          <div class="space-y-4">
+            <input
+              type="text"
+              placeholder="Enter 12-digit UTR"
+              class="w-full text-center text-base sm:text-lg font-mono tracking-wider min-h-[44px] px-3 py-2 border border-gray-300 rounded-md"
+              maxlength="12"
+            />
+            <button
+              class="w-full h-12 sm:h-14 text-base font-medium bg-green-600 text-white rounded-md touch-manipulation hover:bg-green-700"
+            >
+              Submit UTR
+            </button>
+          </div>
+        </div>
+
+        <!-- Test info -->
+        <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+          <h3 class="font-medium text-blue-900 mb-2">
+            Mobile Optimization Features Tested:
+          </h3>
+          <ul class="text-sm text-blue-800 space-y-1">
+            <li>✅ Touch-friendly button sizes (min 44px height)</li>
+            <li>✅ Responsive text sizing (sm: breakpoints)</li>
+            <li>✅ Horizontal scrolling navigation</li>
+            <li>✅ Mobile-optimized spacing and padding</li>
+            <li>✅ Touch manipulation CSS for better interactions</li>
+            <li>✅ Responsive grid layouts</li>
+            <li>✅ Mobile-first design approach</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Test touch interactions
+      document.querySelectorAll("button").forEach((button) => {
+        button.addEventListener("click", function () {
+          console.log("Button clicked:", this.textContent.trim());
+          // Visual feedback
+          this.style.transform = "scale(0.95)";
+          setTimeout(() => {
+            this.style.transform = "";
+          }, 150);
+        });
+      });
+
+      // Test responsive behavior
+      function checkViewport() {
+        const width = window.innerWidth;
+        const info = document.createElement("div");
+        info.className =
+          "fixed top-4 right-4 bg-black text-white px-2 py-1 rounded text-xs z-50";
+        info.textContent = `${width}px ${width >= 640 ? "(Desktop)" : "(Mobile)"}`;
+
+        // Remove existing info
+        const existing = document.querySelector(".fixed.top-4.right-4");
+        if (existing) existing.remove();
+
+        document.body.appendChild(info);
+      }
+
+      checkViewport();
+      window.addEventListener("resize", checkViewport);
+    </script>
+  </body>
+</html>

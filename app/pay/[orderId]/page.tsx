@@ -5,6 +5,7 @@ import Order from "@/lib/db/models/order";
 import SystemSettings from "@/lib/db/models/settings";
 import { generateAllUpiLinks } from "@/lib/utils/upi-links";
 import PaymentPageClient from "@/components/payment/payment-page-client";
+import { PaymentErrorBoundary } from "@/components/error/error-boundary";
 
 interface PaymentPageProps {
   params: Promise<{
@@ -94,13 +95,15 @@ export default async function PaymentPage({ params }: PaymentPageProps) {
     };
 
     return (
-      <PaymentPageClient
-        order={orderData}
-        settings={settingsData}
-        upiLinks={upiLinks}
-        enabledApps={enabledApps}
-        initialTimeRemaining={timeRemaining}
-      />
+      <PaymentErrorBoundary>
+        <PaymentPageClient
+          order={orderData}
+          settings={settingsData}
+          upiLinks={upiLinks}
+          enabledApps={enabledApps}
+          initialTimeRemaining={timeRemaining}
+        />
+      </PaymentErrorBoundary>
     );
   } catch (error) {
     console.error("Error loading payment page:", error);

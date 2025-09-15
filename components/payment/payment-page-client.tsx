@@ -131,10 +131,10 @@ export default function PaymentPageClient({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-4 sm:py-8 px-3 sm:px-4">
       <div className="max-w-md mx-auto">
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
           <div className="text-center mb-4">
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
               Payment Request
@@ -151,10 +151,12 @@ export default function PaymentPageClient({
           {/* Order Details */}
           <div className="space-y-4">
             <div className="text-center">
-              <div className="text-3xl font-bold text-green-600 mb-1">
+              <div className="text-2xl sm:text-3xl font-bold text-green-600 mb-1">
                 ₹{order.amount.toLocaleString("en-IN")}
               </div>
-              <div className="text-gray-600">to {order.merchantName}</div>
+              <div className="text-sm sm:text-base text-gray-600">
+                to {order.merchantName}
+              </div>
             </div>
 
             {/* UPI ID with copy button */}
@@ -173,7 +175,7 @@ export default function PaymentPageClient({
                   variant="outline"
                   size="sm"
                   onClick={() => copyToClipboard(order.vpa, "upi")}
-                  className="px-3"
+                  className="px-3 min-h-[44px] touch-manipulation"
                 >
                   <Copy className="h-4 w-4" />
                 </Button>
@@ -201,7 +203,7 @@ export default function PaymentPageClient({
                   onClick={() =>
                     copyToClipboard(order.amount.toString(), "amount")
                   }
-                  className="px-3"
+                  className="px-3 min-h-[44px] touch-manipulation"
                 >
                   <Copy className="h-4 w-4" />
                 </Button>
@@ -220,7 +222,7 @@ export default function PaymentPageClient({
 
         {/* Timer */}
         {!isExpired && order.status === "pending" && (
-          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+          <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
             <CountdownTimer
               expiresAt={new Date(order.expiresAt)}
               onExpire={handleTimerExpire}
@@ -273,7 +275,7 @@ export default function PaymentPageClient({
 
         {/* UPI App Buttons */}
         {!isExpired && order.status === "pending" && (
-          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+          <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
             <h2 className="text-lg font-semibold mb-4 text-center">
               Pay with UPI App
             </h2>
@@ -287,7 +289,7 @@ export default function PaymentPageClient({
               <Button
                 variant="outline"
                 onClick={() => setShowManualUpi(!showManualUpi)}
-                className="text-sm"
+                className="text-sm min-h-[44px] touch-manipulation"
               >
                 {showManualUpi ? "Hide" : "Show"} Manual UPI Options
               </Button>
@@ -297,7 +299,7 @@ export default function PaymentPageClient({
 
         {/* Manual UPI Options */}
         {showManualUpi && !isExpired && order.status === "pending" && (
-          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+          <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
             <h3 className="text-lg font-semibold mb-4 text-center">
               Manual UPI Payment
             </h3>
@@ -314,7 +316,7 @@ export default function PaymentPageClient({
           order.status === "completed") && (
           <div className="mb-6">
             <OrderStatusTracker
-              currentStatus={order.status}
+              status={order.status}
               utr={order.utr}
               createdAt={order.createdAt}
               utrSubmittedAt={order.utrSubmittedAt}
@@ -324,7 +326,7 @@ export default function PaymentPageClient({
 
         {/* UTR Submission Form */}
         {order.canSubmitUTR && !isExpired && (
-          <div className="bg-white rounded-lg shadow-lg p-6">
+          <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6">
             <h2 className="text-lg font-semibold mb-4 text-center">
               Submit Payment Confirmation
             </h2>

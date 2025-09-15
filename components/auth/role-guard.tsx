@@ -6,7 +6,7 @@ import {
   hasPermission,
   type Permission,
   type UserRole,
-} from "@/lib/auth/permissions";
+} from "@/lib/auth/permissions-client";
 
 interface RoleGuardProps {
   children: React.ReactNode;

@@ -11,6 +11,14 @@ import {
   validateRequestBody,
   withErrorHandler,
 } from "@/lib/utils/api-errors";
+import {
+  withStandardMiddleware,
+  withAdminMiddleware,
+} from "@/lib/middleware/error-handler";
+import {
+  logUTRSubmission,
+  logOrderStatusUpdate,
+} from "@/lib/db/queries/audit-logs";
 
 interface RouteParams {
   params: Promise<{
@@ -22,7 +30,7 @@ interface RouteParams {
  * POST /api/orders/[orderId]/utr
  * Submit UTR for order verification
  */
-export const POST = withErrorHandler(
+export const POST = withStandardMiddleware(
   async (request: NextRequest, { params }: RouteParams) => {
     const { orderId } = await params;
 
@@ -80,6 +88,9 @@ export const POST = withErrorHandler(
       "unknown";
     const userAgent = request.headers.get("user-agent") || "unknown";
 
+    // Store old status for audit logging
+    const oldStatus = order.status;
+
     // Update order with UTR and change status to pending-verification
     order.utr = utr;
     order.status = "pending-verification";
@@ -91,6 +102,30 @@ export const POST = withErrorHandler(
     };
 
     await order.save();
+
+    // Log UTR submission for audit trail
+    await logUTRSubmission(
+      orderId,
+      order.createdBy, // Use order creator as the user for UTR submission
+      utr,
+      {
+        ipAddress: clientIP,
+        userAgent,
+      }
+    );
+
+    // Log order status update
+    await logOrderStatusUpdate(
+      orderId,
+      order.createdBy,
+      oldStatus,
+      "pending-verification",
+      "UTR submitted by customer",
+      {
+        ipAddress: clientIP,
+        userAgent,
+      }
+    );
 
     // Return success response
     return successResponse(
@@ -109,7 +144,7 @@ export const POST = withErrorHandler(
  * GET /api/orders/[orderId]/utr
  * Get UTR submission status for an order
  */
-export const GET = withErrorHandler(
+export const GET = withStandardMiddleware(
   async (request: NextRequest, { params }: RouteParams) => {
     const { orderId } = await params;
 
@@ -138,7 +173,7 @@ export const GET = withErrorHandler(
  * DELETE /api/orders/[orderId]/utr
  * Remove UTR from order (admin only, for corrections)
  */
-export const DELETE = withErrorHandler(
+export const DELETE = withAdminMiddleware(
   async (request: NextRequest, { params }: RouteParams) => {
     const { orderId } = await params;
 

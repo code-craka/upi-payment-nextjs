@@ -49,11 +49,59 @@
   }
 }
 
-@layer base {
-  * {
-    @apply border-border;
+/* Base styles are handled by Tailwind's default configuration */
+
+@layer utilities {
+  /* Hide scrollbar for mobile navigation */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
-  body {
-    @apply bg-background text-foreground;
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Touch-friendly interactions */
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
+
+  /* Mobile-optimized text sizes */
+  .text-mobile-lg {
+    @apply text-lg sm:text-xl;
+  }
+
+  .text-mobile-xl {
+    @apply text-xl sm:text-2xl;
+  }
+
+  .text-mobile-2xl {
+    @apply text-2xl sm:text-3xl;
+  }
+
+  /* Mobile-friendly spacing */
+  .p-mobile {
+    @apply p-4 sm:p-6;
+  }
+
+  .px-mobile {
+    @apply px-4 sm:px-6;
+  }
+
+  .py-mobile {
+    @apply py-4 sm:py-6;
+  }
+
+  .m-mobile {
+    @apply m-4 sm:m-6;
+  }
+
+  .mb-mobile {
+    @apply mb-4 sm:mb-6;
+  }
+
+  /* Mobile-optimized button heights */
+  .btn-mobile {
+    @apply min-h-[44px] touch-manipulation;
   }
 }

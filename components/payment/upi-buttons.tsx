@@ -4,6 +4,9 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ExternalLink, Smartphone } from "lucide-react";
 import { UPI_APPS, getAppStoreUrl } from "@/lib/utils/upi-links";
+import { UPIRedirectHandler } from "@/lib/utils/network-handler";
+import { UPIAppError } from "@/components/error/network-error";
+import { useToast } from "@/components/error/error-messages";
 
 interface UpiButtonsProps {
   upiLinks: Record<string, string>;
@@ -58,45 +61,55 @@ export default function UpiButtons({
   settings,
 }: UpiButtonsProps) {
   const [clickedApp, setClickedApp] = useState<string | null>(null);
+  const [showManualFallback, setShowManualFallback] = useState(false);
+  const [failedApp, setFailedApp] = useState<string | null>(null);
+  const { showToast } = useToast();
 
   const handleUpiAppClick = async (app: string, upiLink: string) => {
     setClickedApp(app);
+    setFailedApp(null);
 
     try {
-      // Attempt to open the UPI app
-      window.location.href = upiLink;
-
-      // Set a timeout to show app store fallback
-      setTimeout(() => {
-        // Check if the user is still on the page (app didn't open)
-        if (document.hasFocus()) {
-          const userAgent = navigator.userAgent.toLowerCase();
-          const isAndroid = userAgent.includes("android");
-          const isIOS =
-            userAgent.includes("iphone") || userAgent.includes("ipad");
-
-          if (isAndroid || isIOS) {
-            const platform = isIOS ? "ios" : "android";
-            const storeUrl = getAppStoreUrl(
-              app as keyof typeof UPI_APPS,
-              platform
-            );
-
-            // Show confirmation before redirecting to store
-            const shouldRedirect = confirm(
-              `${UPI_APP_INFO[app]?.name || app} app not found. Would you like to install it from the app store?`
-            );
-
-            if (shouldRedirect) {
-              window.open(storeUrl, "_blank");
-            }
-          }
+      await UPIRedirectHandler.redirectToUPIApp(
+        app as "gpay" | "phonepe" | "paytm" | "bhim",
+        upiLink,
+        {
+          fallbackDelay: 3000,
+          onFallback: () => {
+            setFailedApp(app);
+            showToast({
+              type: "warning",
+              title: `${UPI_APP_INFO[app]?.name || app} Not Available`,
+              message:
+                "The app couldn't be opened. Try manual payment or install the app.",
+            });
+          },
+          onError: (error) => {
+            console.error(`Failed to open ${app}:`, error);
+            setFailedApp(app);
+            showToast({
+              type: "error",
+              title: "Payment App Error",
+              message:
+                "There was an error opening the payment app. Please try again or use manual payment.",
+            });
+          },
         }
-        setClickedApp(null);
-      }, 3000);
+      );
     } catch (error) {
-      console.error(`Failed to open ${app}:`, error);
-      setClickedApp(null);
+      console.error(`UPI redirect error for ${app}:`, error);
+      setFailedApp(app);
+      showToast({
+        type: "error",
+        title: "Connection Error",
+        message:
+          "Unable to connect to the payment app. Please check your connection and try again.",
+      });
+    } finally {
+      // Reset clicked state after a delay
+      setTimeout(() => {
+        setClickedApp(null);
+      }, 2000);
     }
   };
 
@@ -141,16 +154,16 @@ export default function UpiButtons({
               key={app}
               onClick={() => handleUpiAppClick(app, upiLink)}
               disabled={isClicked}
-              className={`w-full h-14 text-lg font-medium ${appInfo.color} ${appInfo.textColor}
-                         transition-all duration-200 transform hover:scale-105 active:scale-95
+              className={`w-full h-16 sm:h-14 text-base sm:text-lg font-medium ${appInfo.color} ${appInfo.textColor}
+                         transition-all duration-200 transform hover:scale-105 active:scale-95 touch-manipulation
                          ${isClicked ? "opacity-75 cursor-not-allowed" : ""}`}
             >
-              <div className="flex items-center justify-center gap-3">
-                <span className="text-2xl">{appInfo.icon}</span>
-                <span>
+              <div className="flex items-center justify-center gap-2 sm:gap-3">
+                <span className="text-xl sm:text-2xl">{appInfo.icon}</span>
+                <span className="text-center">
                   {isClicked ? "Opening..." : `Pay with ${appInfo.name}`}
                 </span>
-                <ExternalLink className="h-5 w-5" />
+                <ExternalLink className="h-4 w-4 sm:h-5 sm:w-5" />
               </div>
             </Button>
           );
@@ -163,11 +176,11 @@ export default function UpiButtons({
           variant="outline"
           onClick={() => handleUpiAppClick("standard", upiLinks.standard)}
           disabled={clickedApp === "standard"}
-          className="w-full h-12 text-base font-medium border-2 hover:bg-gray-50"
+          className="w-full h-14 sm:h-12 text-base font-medium border-2 hover:bg-gray-50 touch-manipulation"
         >
           <div className="flex items-center justify-center gap-2">
-            <span>🔗</span>
-            <span>
+            <span className="text-lg">🔗</span>
+            <span className="text-center">
               {clickedApp === "standard"
                 ? "Opening..."
                 : "Open with Any UPI App"}

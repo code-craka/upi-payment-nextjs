@@ -1,39 +1,33 @@
-import { auth, currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { authenticateRequest } from "@/lib/auth/utils";
 import { getUserRole, hasPermission } from "@/lib/auth/permissions";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const { userId } = await auth();
+    const auth = await authenticateRequest(request as any);
 
-    if (!userId) {
+    if (!auth.isAuthenticated || !auth.user) {
       return NextResponse.json(
         { error: "Authentication required" },
         { status: 401 }
       );
     }
 
-    const user = await currentUser();
-
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
-
-    const role = getUserRole(user);
+    const role = getUserRole(auth.user);
 
     return NextResponse.json({
       success: true,
       user: {
-        id: user.id,
-        email: user.primaryEmailAddress?.emailAddress,
-        firstName: user.firstName,
-        lastName: user.lastName,
+        id: auth.user.id,
+        email: auth.user.primaryEmailAddress?.emailAddress,
+        firstName: auth.user.firstName,
+        lastName: auth.user.lastName,
         role: role,
         permissions: {
-          canCreateOrder: hasPermission(user, "create_order"),
-          canViewAllOrders: hasPermission(user, "view_all_orders"),
-          canManageUsers: hasPermission(user, "manage_users"),
-          canUpdateSettings: hasPermission(user, "update_settings"),
+          canCreateOrder: hasPermission(auth.user, "create_order"),
+          canViewAllOrders: hasPermission(auth.user, "view_all_orders"),
+          canManageUsers: hasPermission(auth.user, "manage_users"),
+          canUpdateSettings: hasPermission(auth.user, "update_settings"),
         },
       },
     });
