@@ -72,3 +72,10 @@ export function requireRole(
     throw new Error(`Role ${role} required`);
   }
 }
+
+// Helper function to check if user has merchant role
+export function requireMerchant(auth: AuthResult): void {
+  if (!auth.isAuthenticated || (auth.role !== "merchant" && auth.role !== "admin")) {
+    throw new Error("Merchant access required");
+  }
+}

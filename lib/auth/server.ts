@@ -1,32 +1,50 @@
+// Re-export from new type-safe system
+export {
+  getSafeUser,
+  getSafeAuth,
+  requireAuth,
+  requireAuthOrRedirect,
+  requireRole,
+  requireRoleOrRedirect,
+  requireAdmin,
+  requireAdminOrRedirect,
+  requirePermission,
+  requirePermissionOrRedirect,
+  currentUserHasPermission,
+  currentUserHasRole,
+  getSafeUserById,
+  authenticateRequest,
+  withAuth,
+  withRole,
+  withPermission,
+  withAdmin,
+  getAuthContext,
+} from "./safe-auth";
+
+// Legacy compatibility functions (deprecated - use safe-auth instead)
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import {
-  getUserRole,
-  hasPermission,
-  requirePermission,
-  requireAdmin,
-  type Permission,
-  type UserRole,
-} from "./permissions";
+import { adaptClerkUser } from "./adapters";
+import type { Permission, UserRole } from "./types";
 
 /**
- * Get current authenticated user (server-side)
+ * @deprecated Use getSafeUser() instead
  */
 export async function getCurrentUser() {
   return await currentUser();
 }
 
 /**
- * Get current user's auth info
+ * @deprecated Use getSafeAuth() instead
  */
 export async function getCurrentAuth() {
   return await auth();
 }
 
 /**
- * Require authentication or redirect to sign-in
+ * @deprecated Use requireAuthOrRedirect() instead
  */
-export async function requireAuth() {
+export async function requireAuthLegacy() {
   const { userId } = await auth();
 
   if (!userId) {
@@ -37,7 +55,7 @@ export async function requireAuth() {
 }
 
 /**
- * Get authenticated user or redirect to sign-in
+ * @deprecated Use requireAuthOrRedirect() instead
  */
 export async function getAuthenticatedUser() {
   const user = await currentUser();
@@ -50,11 +68,15 @@ export async function getAuthenticatedUser() {
 }
 
 /**
- * Require specific role or redirect
+ * @deprecated Use requireRoleOrRedirect() instead
  */
-export async function requireRole(role: UserRole, redirectTo: string = "/") {
+export async function requireRoleLegacy(
+  role: UserRole,
+  redirectTo: string = "/"
+) {
   const user = await currentUser();
-  const userRole = getUserRole(user);
+  const safeUser = adaptClerkUser(user);
+  const userRole = safeUser?.role;
 
   if (userRole !== role && userRole !== "admin") {
     redirect(redirectTo);
@@ -64,50 +86,24 @@ export async function requireRole(role: UserRole, redirectTo: string = "/") {
 }
 
 /**
- * Require admin role or redirect
+ * @deprecated Use requireAdminOrRedirect() instead
  */
 export async function requireAdminRole(redirectTo: string = "/") {
   const user = await currentUser();
+  const safeUser = adaptClerkUser(user);
 
-  try {
-    requireAdmin(user);
-    return user!;
-  } catch {
+  if (safeUser?.role !== "admin") {
     redirect(redirectTo);
   }
+
+  return user!;
 }
 
 /**
- * Require specific permission or redirect
- */
-export async function requirePermissionOrRedirect(
-  permission: Permission,
-  redirectTo: string = "/"
-) {
-  const user = await currentUser();
-
-  try {
-    requirePermission(user, permission);
-    return user!;
-  } catch {
-    redirect(redirectTo);
-  }
-}
-
-/**
- * Check if current user has permission (server-side)
- */
-export async function currentUserHasPermission(
-  permission: Permission
-): Promise<boolean> {
-  const user = await currentUser();
-  return hasPermission(user, permission);
-}
-
-/**
- * Get current user's role (server-side)
+ * @deprecated Use currentUserHasRole() instead
  */
 export async function getCurrentUserRole(): Promise<UserRole | null> {
   const user = await currentUser();
-  return getUserRole(user);
+  const safeUser = adaptClerkUser(user);
+  return safeUser?.role || null;
 }

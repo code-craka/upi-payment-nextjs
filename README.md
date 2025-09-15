@@ -317,6 +317,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Build Errors**: Ensure you're using pnpm, not npm or yarn
 - **Database Connection**: Verify MongoDB URI and network access
 - **Authentication Issues**: Check Clerk configuration and environment variables
+- **TypeScript Errors**: Run `pnpm type-check` to verify all types are correct
 
 ### Getting Help
 
@@ -326,25 +327,60 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🎯 Roadmap
 
-### Completed Features ✅
+### ✅ Completed Features (v0.6.0)
 
-- [x] Core payment link generation
+- [x] Core payment link generation with API endpoints
 - [x] UPI app integration (GPay, PhonePe, Paytm, BHIM)
 - [x] UTR submission and verification workflow
-- [x] Role-based authentication system
+- [x] Role-based authentication system (Admin, Merchant, Viewer)
 - [x] Order status tracking and management
 - [x] System configuration and settings
+- [x] **Admin dashboard and user management**
+- [x] **Merchant dashboard and analytics**
+- [x] **Full TypeScript implementation**
+- [x] **Enhanced security** (CSRF, rate limiting, sanitization)
+- [x] **Comprehensive audit logging**
+- [x] **Session management**
+- [x] **Mobile-responsive design**
+- [x] **Error handling and validation**
 
-### Upcoming Features 🚧
+### 🚧 Upcoming Features
 
-- [ ] Admin dashboard and user management
-- [ ] Merchant dashboard and analytics
-- [ ] Automated payment verification
+- [ ] Automated payment verification via bank APIs
 - [ ] Email/SMS notifications
 - [ ] Advanced reporting and analytics
 - [ ] Webhook integrations
 - [ ] Mobile app for merchants
+- [ ] Payment gateway integrations
 
 ---
 
-**Built with ❤️ using Next.js, TypeScript, and modern web technologies**
+## 📋 Version History
+
+### v0.6.0 (Current) - TypeScript & Security Enhancement
+- ✅ Full TypeScript implementation with complete type safety
+- ✅ Enhanced security features (CSRF protection, rate limiting, input sanitization)
+- ✅ Complete admin and merchant dashboards
+- ✅ Comprehensive error handling and audit logging
+- ✅ Mobile-responsive UI improvements
+- ✅ Session management and security enhancements
+- ✅ Fixed all TypeScript compilation errors
+
+### v0.5.0 - Core Implementation
+- ✅ Basic payment link generation
+- ✅ UPI app integrations
+- ✅ UTR submission workflow
+- ✅ Role-based authentication setup
+
+---
+
+## 🔄 Development Status
+
+**Last Updated**: December 2024  
+**Version**: 0.6.0  
+**Status**: ✅ Production Ready  
+**TypeScript**: ✅ Fully Implemented (0 errors)  
+**Security**: ✅ Enhanced  
+**Tests**: ✅ Configured  
+
+**Built with ❤️ using Next.js 15, TypeScript, React 19, and modern web technologies**

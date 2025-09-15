@@ -1,8 +1,9 @@
 "use client";
 
-import { UserButton, useUser } from "@clerk/nextjs";
-import { useUserRole } from "@/lib/auth/client";
+import { UserButton } from "@clerk/nextjs";
+import { useSafeUser, useUserDisplay } from "@/lib/auth/safe-client";
 import { Badge } from "@/components/ui/badge";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
 interface UserProfileProps {
   showRole?: boolean;
@@ -15,15 +16,21 @@ export function UserProfile({
   showEmail = false,
   className = "",
 }: UserProfileProps) {
-  const { user, isLoaded } = useUser();
-  const role = useUserRole();
+  const { user, isLoaded, error } = useSafeUser();
+  const { displayName, email } = useUserDisplay();
 
   if (!isLoaded) {
     return (
       <div className={`flex items-center space-x-2 ${className}`}>
-        <div className="animate-pulse">
-          <div className="h-8 w-8 bg-gray-200 rounded-full"></div>
-        </div>
+        <LoadingSpinner size="sm" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={`flex items-center space-x-2 text-red-600 ${className}`}>
+        <span className="text-sm">Error loading profile</span>
       </div>
     );
   }
@@ -48,14 +55,12 @@ export function UserProfile({
   return (
     <div className={`flex items-center space-x-3 ${className}`}>
       <div className="flex flex-col items-end space-y-1">
-        {showEmail && user.primaryEmailAddress && (
-          <span className="text-sm text-gray-600">
-            {user.primaryEmailAddress.emailAddress}
-          </span>
+        {showEmail && email && (
+          <span className="text-sm text-gray-600">{email}</span>
         )}
-        {showRole && role && (
-          <Badge variant={getRoleBadgeVariant(role)} className="text-xs">
-            {role.charAt(0).toUpperCase() + role.slice(1)}
+        {showRole && user.role && (
+          <Badge variant={getRoleBadgeVariant(user.role)} className="text-xs">
+            {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
           </Badge>
         )}
       </div>
@@ -72,24 +77,28 @@ export function UserProfile({
 }
 
 export function UserInfo() {
-  const { user, isLoaded } = useUser();
-  const role = useUserRole();
+  const { user, isLoaded, error } = useSafeUser();
+  const { displayName, email } = useUserDisplay();
 
-  if (!isLoaded || !user) {
+  if (!isLoaded) {
+    return (
+      <div className="flex items-center space-x-2">
+        <LoadingSpinner size="sm" />
+      </div>
+    );
+  }
+
+  if (error || !user) {
     return null;
   }
 
   return (
     <div className="flex flex-col space-y-1">
-      <span className="font-medium">
-        {user.firstName} {user.lastName}
-      </span>
-      <span className="text-sm text-gray-500">
-        {user.primaryEmailAddress?.emailAddress}
-      </span>
-      {role && (
+      <span className="font-medium">{displayName}</span>
+      <span className="text-sm text-gray-500">{email}</span>
+      {user.role && (
         <Badge variant="outline" className="w-fit text-xs">
-          {role.charAt(0).toUpperCase() + role.slice(1)}
+          {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
         </Badge>
       )}
     </div>

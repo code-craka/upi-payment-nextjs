@@ -1,5 +1,6 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { addSecurityHeaders } from "@/lib/middleware/security-middleware";
 
 // Define public routes that don't require authentication
 const isPublicRoute = createRouteMatcher([
@@ -20,37 +21,45 @@ const isProtectedApiRoute = createRouteMatcher([
 export default clerkMiddleware(async (auth, req) => {
   const { userId, sessionClaims } = await auth();
 
+  // Create response with security headers
+  let response: NextResponse;
+
   // Always allow public routes
   if (isPublicRoute(req)) {
-    return NextResponse.next();
+    response = NextResponse.next();
   }
 
   // Handle API routes
-  if (isProtectedApiRoute(req)) {
+  else if (isProtectedApiRoute(req)) {
     if (!userId) {
-      return NextResponse.json(
+      response = NextResponse.json(
         { error: "Authentication required" },
         { status: 401 }
       );
-    }
-
-    // Check admin permissions for admin API routes
-    if (req.nextUrl.pathname.startsWith("/api/admin")) {
-      const userRole = (sessionClaims?.metadata as any)?.role as string;
-      if (userRole !== "admin") {
-        return NextResponse.json(
-          { error: "Admin access required" },
-          { status: 403 }
-        );
+    } else {
+      // Check admin permissions for admin API routes
+      if (req.nextUrl.pathname.startsWith("/api/admin")) {
+        const userRole = (sessionClaims?.metadata as any)?.role as string;
+        if (userRole !== "admin") {
+          response = NextResponse.json(
+            { error: "Admin access required" },
+            { status: 403 }
+          );
+        } else {
+          response = NextResponse.next();
+        }
+      } else {
+        response = NextResponse.next();
       }
     }
-
-    return NextResponse.next();
+  }
+  // For all other routes, let the page handle authentication
+  else {
+    response = NextResponse.next();
   }
 
-  // For all other routes, let the page handle authentication
-  // This prevents redirect loops
-  return NextResponse.next();
+  // Add security headers to all responses
+  return addSecurityHeaders(response);
 });
 
 export const config = {

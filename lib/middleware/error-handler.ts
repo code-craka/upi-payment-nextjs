@@ -1,20 +1,33 @@
 /**
- * Centralized Error Handling Middleware for API Routes
+ * Legacy Error Handling Middleware - Use auth-middleware.ts for new implementations
  * Provides consistent error handling across all API endpoints
  */
 
 import { NextRequest, NextResponse } from "next/server";
 import { handleAPIError, APIError } from "@/lib/utils/api-errors";
 
-export type APIHandler = (
+// Re-export from new auth middleware system
+export {
+  withStandardMiddleware,
+  withAdminMiddleware,
+  withRoleMiddleware,
+  withPermissionMiddleware,
+  withPublicMiddleware,
+  withErrorHandling as withAuthErrorHandling,
+} from "./auth-middleware";
+
+export type { APIHandler, PublicAPIHandler } from "./auth-middleware";
+
+// Legacy type for backward compatibility
+export type LegacyAPIHandler = (
   request: NextRequest,
   context?: { params?: any }
 ) => Promise<NextResponse>;
 
 /**
- * Wraps API route handlers with centralized error handling
+ * Legacy error handling wrapper - use withAuthErrorHandling for new code
  */
-export function withErrorHandling(handler: APIHandler): APIHandler {
+export function withErrorHandling(handler: LegacyAPIHandler): LegacyAPIHandler {
   return async (request: NextRequest, context?: { params?: any }) => {
     try {
       return await handler(request, context);
@@ -35,17 +48,17 @@ export function withErrorHandling(handler: APIHandler): APIHandler {
 }
 
 /**
- * Middleware for request validation and preprocessing
+ * Legacy middleware for request validation - use auth-middleware.ts for new code
  */
 export function withRequestValidation(
-  handler: APIHandler,
+  handler: LegacyAPIHandler,
   options: {
     requireAuth?: boolean;
     requireRole?: string[];
     maxBodySize?: number;
     allowedMethods?: string[];
   } = {}
-): APIHandler {
+): LegacyAPIHandler {
   return withErrorHandling(async (request, context) => {
     // Check allowed methods
     if (
@@ -92,13 +105,13 @@ export function withRequestValidation(
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
 
 export function withRateLimit(
-  handler: APIHandler,
+  handler: LegacyAPIHandler,
   options: {
     windowMs: number;
     maxRequests: number;
     keyGenerator?: (request: NextRequest) => string;
   }
-): APIHandler {
+): LegacyAPIHandler {
   return withErrorHandling(async (request, context) => {
     const key = options.keyGenerator
       ? options.keyGenerator(request)
@@ -136,14 +149,14 @@ export function withRateLimit(
  * CORS middleware
  */
 export function withCORS(
-  handler: APIHandler,
+  handler: LegacyAPIHandler,
   options: {
     origin?: string | string[];
     methods?: string[];
     allowedHeaders?: string[];
     credentials?: boolean;
   } = {}
-): APIHandler {
+): LegacyAPIHandler {
   return withErrorHandling(async (request, context) => {
     const response = await handler(request, context);
 
@@ -185,7 +198,7 @@ export function withCORS(
 /**
  * Request logging middleware
  */
-export function withLogging(handler: APIHandler): APIHandler {
+export function withLogging(handler: LegacyAPIHandler): LegacyAPIHandler {
   return withErrorHandling(async (request, context) => {
     const startTime = Date.now();
 
@@ -208,9 +221,9 @@ export function withLogging(handler: APIHandler): APIHandler {
  * Compose multiple middleware functions
  */
 export function compose(
-  ...middlewares: ((handler: APIHandler) => APIHandler)[]
-): (handler: APIHandler) => APIHandler {
-  return (handler: APIHandler) => {
+  ...middlewares: ((handler: LegacyAPIHandler) => LegacyAPIHandler)[]
+): (handler: LegacyAPIHandler) => LegacyAPIHandler {
+  return (handler: LegacyAPIHandler) => {
     return middlewares.reduceRight(
       (acc, middleware) => middleware(acc),
       handler
@@ -219,9 +232,9 @@ export function compose(
 }
 
 /**
- * Common middleware combinations
+ * Legacy middleware combinations - use auth-middleware.ts for new implementations
  */
-export const withStandardMiddleware = compose(
+export const withLegacyStandardMiddleware = compose(
   withLogging,
   (handler) =>
     withRequestValidation(handler, {
@@ -235,10 +248,12 @@ export const withStandardMiddleware = compose(
     })
 );
 
-export const withAuthMiddleware = compose(withStandardMiddleware, (handler) =>
-  withRequestValidation(handler, { requireAuth: true })
+export const withLegacyAuthMiddleware = compose(
+  withLegacyStandardMiddleware,
+  (handler) => withRequestValidation(handler, { requireAuth: true })
 );
 
-export const withAdminMiddleware = compose(withAuthMiddleware, (handler) =>
-  withRequestValidation(handler, { requireRole: ["admin"] })
+export const withLegacyAdminMiddleware = compose(
+  withLegacyAuthMiddleware,
+  (handler) => withRequestValidation(handler, { requireRole: ["admin"] })
 );

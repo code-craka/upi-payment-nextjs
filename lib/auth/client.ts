@@ -1,67 +1,84 @@
 "use client";
 
+// Re-export from new type-safe client system
+export {
+  useSafeUser,
+  useAuthContext,
+  useHasRole,
+  useHasPermission,
+  useIsAdmin,
+  useIsMerchant,
+  useIsViewer,
+  useUserDisplay,
+  useRoleGuard,
+  usePermissionGuard,
+  useAuthGuard,
+  useSanitizedUser,
+  useSession,
+  useUserPreferences,
+} from "./safe-client";
+
+// Legacy compatibility (deprecated - use safe-client instead)
 import { useUser } from "@clerk/nextjs";
-import {
-  getUserRole,
-  hasPermission,
-  type Permission,
-  type UserRole,
-} from "./permissions-client";
+import { adaptClerkUserResource } from "./adapters";
+import type { Permission, UserRole } from "./types";
 
 /**
- * Hook to get current user's role (client-side)
+ * @deprecated Use useSafeUser() instead
  */
 export function useUserRole(): UserRole | null {
   const { user } = useUser();
-  return getUserRole(user);
+  const safeUser = adaptClerkUserResource(user);
+  return safeUser?.role || null;
 }
 
 /**
- * Hook to check if user has specific permission (client-side)
+ * @deprecated Use useHasPermission() from safe-client instead
  */
-export function useHasPermission(permission: Permission): boolean {
+export function useHasPermissionLegacy(permission: Permission): boolean {
   const { user } = useUser();
-  return hasPermission(user, permission);
+  const safeUser = adaptClerkUserResource(user);
+  return safeUser?.permissions.includes(permission) || false;
 }
 
 /**
- * Hook to check if user is admin (client-side)
+ * @deprecated Use useIsAdmin() from safe-client instead
  */
-export function useIsAdmin(): boolean {
+export function useIsAdminLegacy(): boolean {
   const role = useUserRole();
   return role === "admin";
 }
 
 /**
- * Hook to check if user is merchant (client-side)
+ * @deprecated Use useIsMerchant() from safe-client instead
  */
-export function useIsMerchant(): boolean {
+export function useIsMerchantLegacy(): boolean {
   const role = useUserRole();
   return role === "merchant" || role === "admin";
 }
 
 /**
- * Hook to check if user is viewer (client-side)
+ * @deprecated Use useIsViewer() from safe-client instead
  */
-export function useIsViewer(): boolean {
+export function useIsViewerLegacy(): boolean {
   const role = useUserRole();
   return role === "viewer" || role === "merchant" || role === "admin";
 }
 
 /**
- * Hook to get user authentication status and role info
+ * @deprecated Use useAuthContext() from safe-client instead
  */
 export function useAuthStatus() {
   const { user, isLoaded, isSignedIn } = useUser();
-  const role = getUserRole(user);
+  const safeUser = adaptClerkUserResource(user);
 
   return {
-    user,
+    user: safeUser,
     isLoaded,
     isSignedIn,
-    role,
-    isAdmin: role === "admin",
-    isMerchant: role === "merchant" || role === "admin",
-    isViewer: role === "viewer" || role === "merchant" || role === "admin",
+    role: safeUser?.role || null,
+    isAdmin: safeUser?.role === "admin",
+    isMerchant: safeUser?.role === "merchant" || safeUser?.role === "admin",
+    isViewer: ["viewer", "merchant", "admin"].includes(safeUser?.role || ""),
   };
 }
